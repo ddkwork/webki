@@ -6,11 +6,14 @@
 package glide
 
 import (
+	"fmt"
 	"io/fs"
+	"path"
 
 	"goki.dev/gi/v2/gi"
 	"goki.dev/girl/styles"
 	"goki.dev/glide/gidom"
+	"goki.dev/glop/dirs"
 	"goki.dev/ki/v2"
 )
 
@@ -36,4 +39,44 @@ func (pg *Page) OnInit() {
 	pg.Style(func(s *styles.Style) {
 		s.Direction = styles.Col
 	})
+}
+
+// OpenURL sets the content of the page from the given url.
+func (pg *Page) OpenURL(url string) error {
+	pg.PgURL = url
+	pg.History = append(pg.History, url)
+
+	if pg.Source == nil {
+		return fmt.Errorf("page source must not be nil")
+	}
+
+	fsPath := path.Join(url, "_index.md")
+	exists, err := dirs.FileExistsFS(pg.Source, fsPath)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		fsPath = path.Clean(url) + ".md"
+	}
+
+	file, err := pg.Source.Open(fsPath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	updt := pg.UpdateStart()
+	pg.DeleteChildren(true)
+	err = gidom.ReadHTML(pg, pg, file)
+	if err != nil {
+		return err
+	}
+	pg.Update()
+	pg.UpdateEndLayout(updt)
+	return nil
+}
+
+// PageURL returns the current page URL
+func (pg *Page) PageURL() string {
+	return pg.PgURL
 }
