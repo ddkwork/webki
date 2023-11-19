@@ -17,6 +17,8 @@ import (
 	"goki.dev/glide/gidom"
 	"goki.dev/glop/dirs"
 	"goki.dev/goosi"
+	"goki.dev/goosi/events"
+	"goki.dev/grr"
 	"goki.dev/ki/v2"
 )
 
@@ -98,4 +100,30 @@ func (pg *Page) OpenURL(rawURL string) error {
 // PageURL returns the current page URL
 func (pg *Page) PageURL() string {
 	return pg.PgURL
+}
+
+// TopAppBar is the default [gi.TopAppBar] for a [Page]
+func (pg *Page) TopAppBar(tb *gi.TopAppBar) {
+	gi.DefaultTopAppBarStd(tb)
+
+	back := tb.ChildByName("back").(*gi.Button)
+	back.OnClick(func(e events.Event) {
+		if len(pg.History) > 1 {
+			pg.OpenURL(pg.History[len(pg.History)-2])
+		}
+	})
+
+	ch := tb.ChildByName("nav-bar").(*gi.Chooser)
+	ch.AllowNew = true
+	ch.ItemsFunc = func() {
+		ch.Items = make([]any, len(pg.History))
+		for i, u := range pg.History {
+			// we reverse the order
+			ch.Items[len(pg.History)-i-1] = u
+		}
+	}
+	ch.OnChange(func(e events.Event) {
+		grr.Log0(pg.OpenURL(ch.CurLabel))
+		e.SetHandled()
+	})
 }

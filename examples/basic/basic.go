@@ -21,6 +21,8 @@ func main() { gimain.Run(app) }
 
 func app() {
 	sc := gi.NewScene("webki-basic")
-	grr.Log0(webki.NewPage(sc).SetSource(grr.Log(fs.Sub(content, "content"))).OpenURL(""))
+	pg := webki.NewPage(sc).SetSource(grr.Log(fs.Sub(content, "content")))
+	grr.Log0(pg.OpenURL(""))
+	gi.DefaultTopAppBar = pg.TopAppBar
 	gi.NewWindow(sc).Run().Wait()
 }
