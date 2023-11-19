@@ -45,17 +45,17 @@ func (pg *Page) OnInit() {
 }
 
 // OpenURL sets the content of the page from the given url. If the given URL
-// is a path inside of the current site (eg: "/about"), then it
-// sets the content of the page to the file specified by either the "_index.md"
-// file in the corresponding directory (eg: "/about/_index.md") or the corresponding
-// md file (eg: "/about.md"). If it is not in the current site (eg: "https://example.com"),
+// has no scheme (eg: "/about"), then it sets the content of the page to the
+// file specified by the URL. This is either the "_index.md" file in the
+// corresponding directory (eg: "/about/_index.md") or the corresponding
+// md file (eg: "/about.md"). If it has a scheme, (eg: "https://example.com"),
 // then it opens it in the user's default browser.
 func (pg *Page) OpenURL(rawURL string) error {
 	u, err := url.Parse(rawURL)
 	if err != nil {
 		return err
 	}
-	if u.Scheme != "" || u.Host != "" {
+	if u.Scheme != "" {
 		goosi.TheApp.OpenURL(u.String())
 		return nil
 	}
