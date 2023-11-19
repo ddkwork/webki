@@ -6,6 +6,7 @@ package main
 
 import (
 	"embed"
+	"io/fs"
 
 	"goki.dev/gi/v2/gi"
 	"goki.dev/gi/v2/gimain"
@@ -20,6 +21,6 @@ func main() { gimain.Run(app) }
 
 func app() {
 	sc := gi.NewScene("webki-basic")
-	grr.Log0(webki.NewPage(sc).SetSource(content).OpenURL("content"))
+	grr.Log0(webki.NewPage(sc).SetSource(grr.Log(fs.Sub(content, "content"))).OpenURL(""))
 	gi.NewWindow(sc).Run().Wait()
 }
