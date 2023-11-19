@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Package webki provides a framework designed for easily building content-focused sites
-package glide
+package webki
 
 import (
 	"fmt"
@@ -59,15 +59,14 @@ func (pg *Page) OpenURL(url string) error {
 		fsPath = path.Clean(url) + ".md"
 	}
 
-	file, err := pg.Source.Open(fsPath)
+	b, err := fs.ReadFile(pg.Source, fsPath)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
 
 	updt := pg.UpdateStart()
 	pg.DeleteChildren(true)
-	err = gidom.ReadHTML(pg, pg, file)
+	err = gidom.ReadMD(pg, pg, b)
 	if err != nil {
 		return err
 	}
