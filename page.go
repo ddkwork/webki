@@ -8,12 +8,15 @@ package webki
 import (
 	"fmt"
 	"io/fs"
+	"net/url"
 	"path"
+	"strings"
 
 	"goki.dev/gi/v2/gi"
 	"goki.dev/girl/styles"
 	"goki.dev/glide/gidom"
 	"goki.dev/glop/dirs"
+	"goki.dev/goosi"
 	"goki.dev/ki/v2"
 )
 
@@ -41,22 +44,39 @@ func (pg *Page) OnInit() {
 	})
 }
 
-// OpenURL sets the content of the page from the given url.
-func (pg *Page) OpenURL(url string) error {
-	pg.PgURL = url
-	pg.History = append(pg.History, url)
+// OpenURL sets the content of the page from the given url. If the given URL
+// is a path inside of the current site (eg: "/about"), then it
+// sets the content of the page to the file specified by either the "_index.md"
+// file in the corresponding directory (eg: "/about/_index.md") or the corresponding
+// md file (eg: "/about.md"). If it is not in the current site (eg: "https://example.com"),
+// then it opens it in the user's default browser.
+func (pg *Page) OpenURL(rawURL string) error {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return err
+	}
+	if u.Scheme != "" || u.Host != "" {
+		goosi.TheApp.OpenURL(u.String())
+		return nil
+	}
+
+	pg.PgURL = rawURL
+	pg.History = append(pg.History, rawURL)
 
 	if pg.Source == nil {
 		return fmt.Errorf("page source must not be nil")
 	}
 
-	fsPath := path.Join(url, "_index.md")
+	// the paths in the fs are never rooted, so we trim a rooted one
+	rawURL = strings.TrimPrefix(rawURL, "/")
+
+	fsPath := path.Join(rawURL, "_index.md")
 	exists, err := dirs.FileExistsFS(pg.Source, fsPath)
 	if err != nil {
 		return err
 	}
 	if !exists {
-		fsPath = path.Clean(url) + ".md"
+		fsPath = path.Clean(rawURL) + ".md"
 	}
 
 	b, err := fs.ReadFile(pg.Source, fsPath)
