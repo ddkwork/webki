@@ -42,7 +42,7 @@ var _ ki.Ki = (*Page)(nil)
 func (pg *Page) OnInit() {
 	pg.Frame.OnInit()
 	pg.Style(func(s *styles.Style) {
-		s.Direction = styles.Col
+		s.Direction = styles.Column
 	})
 }
 
