@@ -35,6 +35,9 @@ type Page struct {
 
 	// PgURL is the current page URL
 	PgURL string
+
+	// PgPath is the fs path of the current page in [Page.Source]
+	PgPath string
 }
 
 var _ ki.Ki = (*Page)(nil)
@@ -62,15 +65,20 @@ func (pg *Page) OpenURL(rawURL string) error {
 		return nil
 	}
 
-	pg.PgURL = rawURL
-	pg.History = append(pg.History, rawURL)
-
 	if pg.Source == nil {
 		return fmt.Errorf("page source must not be nil")
 	}
 
+	// if we are not rooted, we go relative to our current fs path
+	if !strings.HasPrefix(rawURL, "/") {
+		rawURL = path.Join(path.Dir(pg.PgPath), rawURL)
+	}
+
 	// the paths in the fs are never rooted, so we trim a rooted one
 	rawURL = strings.TrimPrefix(rawURL, "/")
+
+	pg.PgURL = rawURL
+	pg.History = append(pg.History, rawURL)
 
 	fsPath := path.Join(rawURL, "index.md")
 	exists, err := dirs.FileExistsFS(pg.Source, fsPath)
@@ -80,6 +88,8 @@ func (pg *Page) OpenURL(rawURL string) error {
 	if !exists {
 		fsPath = path.Clean(rawURL) + ".md"
 	}
+
+	pg.PgPath = fsPath
 
 	b, err := fs.ReadFile(pg.Source, fsPath)
 	if err != nil {
