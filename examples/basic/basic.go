@@ -14,7 +14,7 @@ import (
 	"goki.dev/webki"
 )
 
-//go:embed all:content
+//go:embed content
 var content embed.FS
 
 func main() { gimain.Run(app) }
