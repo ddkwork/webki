@@ -77,10 +77,7 @@ func (pg *Page) OpenURL(rawURL string) error {
 	// the paths in the fs are never rooted, so we trim a rooted one
 	rawURL = strings.TrimPrefix(rawURL, "/")
 
-	// but we must include the leading slash in the history so that
-	// history-based navigation works correctly and doesn't start
-	// using relative URLs
-	pg.PgURL = "/" + rawURL
+	pg.PgURL = rawURL
 	pg.History = append(pg.History, pg.PgURL)
 
 	fsPath := path.Join(rawURL, "index.md")
@@ -122,7 +119,8 @@ func (pg *Page) TopAppBar(tb *gi.TopAppBar) {
 	back := tb.ChildByName("back").(*gi.Button)
 	back.OnClick(func(e events.Event) {
 		if len(pg.History) > 1 {
-			pg.OpenURL(pg.History[len(pg.History)-2])
+			// we need a slash so that it doesn't think it's a relative URL
+			pg.OpenURL("/" + pg.History[len(pg.History)-2])
 		}
 	})
 
@@ -136,7 +134,8 @@ func (pg *Page) TopAppBar(tb *gi.TopAppBar) {
 		}
 	}
 	ch.OnChange(func(e events.Event) {
-		grr.Log0(pg.OpenURL(ch.CurLabel))
+		// we need a slash so that it doesn't think it's a relative URL
+		grr.Log0(pg.OpenURL("/" + ch.CurLabel))
 		e.SetHandled()
 	})
 }
