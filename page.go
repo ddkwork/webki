@@ -77,8 +77,11 @@ func (pg *Page) OpenURL(rawURL string) error {
 	// the paths in the fs are never rooted, so we trim a rooted one
 	rawURL = strings.TrimPrefix(rawURL, "/")
 
-	pg.PgURL = rawURL
-	pg.History = append(pg.History, rawURL)
+	// but we must include the leading slash in the history so that
+	// history-based navigation works correctly and doesn't start
+	// using relative URLs
+	pg.PgURL = "/" + rawURL
+	pg.History = append(pg.History, pg.PgURL)
 
 	fsPath := path.Join(rawURL, "index.md")
 	exists, err := dirs.FileExistsFS(pg.Source, fsPath)
