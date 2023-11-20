@@ -48,8 +48,8 @@ func (pg *Page) OnInit() {
 
 // OpenURL sets the content of the page from the given url. If the given URL
 // has no scheme (eg: "/about"), then it sets the content of the page to the
-// file specified by the URL. This is either the "_index.md" file in the
-// corresponding directory (eg: "/about/_index.md") or the corresponding
+// file specified by the URL. This is either the "index.md" file in the
+// corresponding directory (eg: "/about/index.md") or the corresponding
 // md file (eg: "/about.md"). If it has a scheme, (eg: "https://example.com"),
 // then it opens it in the user's default browser.
 func (pg *Page) OpenURL(rawURL string) error {
@@ -72,7 +72,7 @@ func (pg *Page) OpenURL(rawURL string) error {
 	// the paths in the fs are never rooted, so we trim a rooted one
 	rawURL = strings.TrimPrefix(rawURL, "/")
 
-	fsPath := path.Join(rawURL, "_index.md")
+	fsPath := path.Join(rawURL, "index.md")
 	exists, err := dirs.FileExistsFS(pg.Source, fsPath)
 	if err != nil {
 		return err
