@@ -25,7 +25,6 @@ import (
 // Page represents one site page
 type Page struct {
 	gi.Frame
-	gidom.ContextBase
 
 	// Source is the filesystem in which the content is located.
 	Source fs.FS
@@ -33,11 +32,11 @@ type Page struct {
 	// The history of URLs that have been visited. The oldest page is first.
 	History []string
 
-	// PgURL is the current page URL
-	PgURL string
+	// PageURL is the current page URL
+	PageURL string
 
-	// PgPath is the fs path of the current page in [Page.Source]
-	PgPath string
+	// PagePath is the fs path of the current page in [Page.Source]
+	PagePath string
 }
 
 var _ ki.Ki = (*Page)(nil)
@@ -71,14 +70,14 @@ func (pg *Page) OpenURL(rawURL string) error {
 
 	// if we are not rooted, we go relative to our current fs path
 	if !strings.HasPrefix(rawURL, "/") {
-		rawURL = path.Join(path.Dir(pg.PgPath), rawURL)
+		rawURL = path.Join(path.Dir(pg.PagePath), rawURL)
 	}
 
 	// the paths in the fs are never rooted, so we trim a rooted one
 	rawURL = strings.TrimPrefix(rawURL, "/")
 
-	pg.PgURL = rawURL
-	pg.History = append(pg.History, pg.PgURL)
+	pg.PageURL = rawURL
+	pg.History = append(pg.History, pg.PageURL)
 
 	fsPath := path.Join(rawURL, "index.md")
 	exists, err := dirs.FileExistsFS(pg.Source, fsPath)
@@ -89,7 +88,7 @@ func (pg *Page) OpenURL(rawURL string) error {
 		fsPath = path.Clean(rawURL) + ".md"
 	}
 
-	pg.PgPath = fsPath
+	pg.PagePath = fsPath
 
 	b, err := fs.ReadFile(pg.Source, fsPath)
 	if err != nil {
@@ -98,18 +97,13 @@ func (pg *Page) OpenURL(rawURL string) error {
 
 	updt := pg.UpdateStart()
 	pg.DeleteChildren(true)
-	err = gidom.ReadMD(pg, pg, b)
+	err = gidom.ReadMD(pg.Context(), pg, b)
 	if err != nil {
 		return err
 	}
 	pg.Update()
 	pg.UpdateEndLayout(updt)
 	return nil
-}
-
-// PageURL returns the current page URL
-func (pg *Page) PageURL() string {
-	return pg.PgURL
 }
 
 // TopAppBar is the default [gi.TopAppBar] for a [Page]

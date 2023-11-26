@@ -6,26 +6,24 @@ import (
 	"io/fs"
 
 	"goki.dev/gi/v2/gi"
-	"goki.dev/glide/gidom"
 	"goki.dev/goosi/events"
 	"goki.dev/gti"
 	"goki.dev/ki/v2"
 	"goki.dev/ordmap"
-	"golang.org/x/net/html"
 )
 
 // PageType is the [gti.Type] for [Page]
 var PageType = gti.AddType(&gti.Type{
 	Name:       "goki.dev/webki.Page",
-	ShortName:  "glide.Page",
+	ShortName:  "webki.Page",
 	IDName:     "page",
 	Doc:        "Page represents one site page",
 	Directives: gti.Directives{},
 	Fields: ordmap.Make([]ordmap.KeyVal[string, *gti.Field]{
-		{"ContextBase", &gti.Field{Name: "ContextBase", Type: "goki.dev/glide/gidom.ContextBase", LocalType: "gidom.ContextBase", Doc: "", Directives: gti.Directives{}, Tag: ""}},
 		{"Source", &gti.Field{Name: "Source", Type: "io/fs.FS", LocalType: "fs.FS", Doc: "Source is the filesystem in which the content is located.", Directives: gti.Directives{}, Tag: ""}},
 		{"History", &gti.Field{Name: "History", Type: "[]string", LocalType: "[]string", Doc: "The history of URLs that have been visited. The oldest page is first.", Directives: gti.Directives{}, Tag: ""}},
-		{"PgURL", &gti.Field{Name: "PgURL", Type: "string", LocalType: "string", Doc: "PgURL is the current page URL", Directives: gti.Directives{}, Tag: ""}},
+		{"PageURL", &gti.Field{Name: "PageURL", Type: "string", LocalType: "string", Doc: "PageURL is the current page URL", Directives: gti.Directives{}, Tag: ""}},
+		{"PagePath", &gti.Field{Name: "PagePath", Type: "string", LocalType: "string", Doc: "PagePath is the fs path of the current page in [Page.Source]", Directives: gti.Directives{}, Tag: ""}},
 	}),
 	Embeds: ordmap.Make([]ordmap.KeyVal[string, *gti.Field]{
 		{"Frame", &gti.Field{Name: "Frame", Type: "goki.dev/gi/v2/gi.Frame", LocalType: "gi.Frame", Doc: "", Directives: gti.Directives{}, Tag: ""}},
@@ -52,12 +50,6 @@ func (t *Page) New() ki.Ki {
 	return &Page{}
 }
 
-// SetContextBase sets the [Page.ContextBase]
-func (t *Page) SetContextBase(v gidom.ContextBase) *Page {
-	t.ContextBase = v
-	return t
-}
-
 // SetSource sets the [Page.Source]:
 // Source is the filesystem in which the content is located.
 func (t *Page) SetSource(v fs.FS) *Page {
@@ -72,10 +64,17 @@ func (t *Page) SetHistory(v []string) *Page {
 	return t
 }
 
-// SetPgUrl sets the [Page.PgURL]:
-// PgURL is the current page URL
-func (t *Page) SetPgUrl(v string) *Page {
-	t.PgURL = v
+// SetPageUrl sets the [Page.PageURL]:
+// PageURL is the current page URL
+func (t *Page) SetPageUrl(v string) *Page {
+	t.PageURL = v
+	return t
+}
+
+// SetPagePath sets the [Page.PagePath]:
+// PagePath is the fs path of the current page in [Page.Source]
+func (t *Page) SetPagePath(v string) *Page {
+	t.PagePath = v
 	return t
 }
 
@@ -112,17 +111,5 @@ func (t *Page) SetStackTop(v int) *Page {
 // SetStripes sets the [Page.Stripes]
 func (t *Page) SetStripes(v gi.Stripes) *Page {
 	t.Stripes = v
-	return t
-}
-
-// SetCurStyle sets the [Page.CurStyle]
-func (t *Page) SetCurStyle(v string) *Page {
-	t.CurStyle = v
-	return t
-}
-
-// SetWidgetsForNodes sets the [Page.WidgetsForNodes]
-func (t *Page) SetWidgetsForNodes(v map[*html.Node]gi.Widget) *Page {
-	t.WidgetsForNodes = v
 	return t
 }
