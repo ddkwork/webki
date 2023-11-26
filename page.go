@@ -32,6 +32,9 @@ type Page struct {
 	// The history of URLs that have been visited. The oldest page is first.
 	History []string
 
+	// HistoryIndex is the current place we are at in the History
+	HistoryIndex int
+
 	// PageURL is the current page URL
 	PageURL string
 
@@ -78,6 +81,7 @@ func (pg *Page) OpenURL(rawURL string, addToHistory bool) error {
 
 	pg.PageURL = rawURL
 	if addToHistory {
+		pg.HistoryIndex = len(pg.History)
 		pg.History = append(pg.History, pg.PageURL)
 	}
 
@@ -112,15 +116,19 @@ func (pg *Page) OpenURL(rawURL string, addToHistory bool) error {
 func (pg *Page) TopAppBar(tb *gi.TopAppBar) {
 	gi.DefaultTopAppBarStd(tb)
 
+	ch := tb.ChildByName("nav-bar").(*gi.Chooser)
+
 	back := tb.ChildByName("back").(*gi.Button)
 	back.OnClick(func(e events.Event) {
-		if len(pg.History) > 1 {
+		if pg.HistoryIndex > 0 {
+			pg.HistoryIndex--
+			// we reverse the order
+			// ch.SelectItem(len(pg.History) - pg.HistoryIndex - 1)
 			// we need a slash so that it doesn't think it's a relative URL
-			pg.OpenURL("/"+pg.History[len(pg.History)-2], false)
+			pg.OpenURL("/"+pg.History[pg.HistoryIndex], false)
 		}
 	})
 
-	ch := tb.ChildByName("nav-bar").(*gi.Chooser)
 	ch.AllowNew = true
 	ch.ItemsFunc = func() {
 		ch.Items = make([]any, len(pg.History))
