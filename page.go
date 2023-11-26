@@ -54,7 +54,7 @@ func (pg *Page) OnInit() {
 // corresponding directory (eg: "/about/index.md") or the corresponding
 // md file (eg: "/about.md"). If it has a scheme, (eg: "https://example.com"),
 // then it opens it in the user's default browser.
-func (pg *Page) OpenURL(rawURL string) error {
+func (pg *Page) OpenURL(rawURL string, addToHistory bool) error {
 	u, err := url.Parse(rawURL)
 	if err != nil {
 		return err
@@ -77,7 +77,9 @@ func (pg *Page) OpenURL(rawURL string) error {
 	rawURL = strings.TrimPrefix(rawURL, "/")
 
 	pg.PageURL = rawURL
-	pg.History = append(pg.History, pg.PageURL)
+	if addToHistory {
+		pg.History = append(pg.History, pg.PageURL)
+	}
 
 	fsPath := path.Join(rawURL, "index.md")
 	exists, err := dirs.FileExistsFS(pg.Source, fsPath)
@@ -114,7 +116,7 @@ func (pg *Page) TopAppBar(tb *gi.TopAppBar) {
 	back.OnClick(func(e events.Event) {
 		if len(pg.History) > 1 {
 			// we need a slash so that it doesn't think it's a relative URL
-			pg.OpenURL("/" + pg.History[len(pg.History)-2])
+			pg.OpenURL("/"+pg.History[len(pg.History)-2], false)
 		}
 	})
 
@@ -129,7 +131,7 @@ func (pg *Page) TopAppBar(tb *gi.TopAppBar) {
 	}
 	ch.OnChange(func(e events.Event) {
 		// we need a slash so that it doesn't think it's a relative URL
-		grr.Log0(pg.OpenURL("/" + ch.CurLabel))
+		grr.Log0(pg.OpenURL("/"+ch.CurLabel, true))
 		e.SetHandled()
 	})
 }
