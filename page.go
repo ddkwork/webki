@@ -128,9 +128,9 @@ func (pg *Page) ConfigWidget() {
 			// we need a slash so that it doesn't think it's a relative URL
 			url = "/" + sn.PathFrom(nav)
 		}
-		grr.Log0(pg.OpenURL(url, true))
+		grr.Log(pg.OpenURL(url, true))
 	})
-	grr.Log0(fs.WalkDir(pg.Source, ".", func(fpath string, d fs.DirEntry, err error) error {
+	grr.Log(fs.WalkDir(pg.Source, ".", func(fpath string, d fs.DirEntry, err error) error {
 		// already handled
 		if fpath == "" || fpath == "." {
 			return nil
@@ -181,7 +181,7 @@ func (pg *Page) TopAppBar(tb *gi.TopAppBar) {
 			// we reverse the order
 			// ch.SelectItem(len(pg.History) - pg.HistoryIndex - 1)
 			// we need a slash so that it doesn't think it's a relative URL
-			grr.Log0(pg.OpenURL("/"+pg.History[pg.HistoryIndex], false))
+			grr.Log(pg.OpenURL("/"+pg.History[pg.HistoryIndex], false))
 		}
 	})
 
@@ -195,7 +195,7 @@ func (pg *Page) TopAppBar(tb *gi.TopAppBar) {
 	}
 	ch.OnChange(func(e events.Event) {
 		// we need a slash so that it doesn't think it's a relative URL
-		grr.Log0(pg.OpenURL("/"+ch.CurLabel, true))
+		grr.Log(pg.OpenURL("/"+ch.CurLabel, true))
 		e.SetHandled()
 	})
 }

@@ -22,9 +22,9 @@ func main() { gimain.Run(app) }
 func app() {
 	gi.SetAppName("webki-basic")
 	b := gi.NewBody()
-	pg := webki.NewPage(b).SetSource(grr.Log(fs.Sub(content, "content")))
+	pg := webki.NewPage(b).SetSource(grr.Log1(fs.Sub(content, "content")))
 	b.AddTopAppBar(pg.TopAppBar)
 	w := b.NewWindow().Run()
-	grr.Log0(pg.OpenURL("", true))
+	grr.Log(pg.OpenURL("", true))
 	w.Wait()
 }
