@@ -20,7 +20,8 @@ var content embed.FS
 func main() { gimain.Run(app) }
 
 func app() {
-	b := gi.NewBody("webki-basic")
+	gi.SetAppName("webki-basic")
+	b := gi.NewBody()
 	pg := webki.NewPage(b).SetSource(grr.Log(fs.Sub(content, "content")))
 	b.AddTopAppBar(pg.TopAppBar)
 	w := b.NewWindow().Run()

@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/iancoleman/strcase"
 	"goki.dev/gi/v2/gi"
 	"goki.dev/gi/v2/giv"
 	"goki.dev/girl/styles"
@@ -117,18 +118,27 @@ func (pg *Page) ConfigWidget() {
 	updt := pg.UpdateStart()
 	sp := gi.NewSplits(pg, "splits")
 
-	nav := giv.NewTreeView(sp, "nav").SetText(sentencecase.Of(gi.AppName()))
-	grr.Log0(fs.WalkDir(pg.Source, "", func(path string, d fs.DirEntry, err error) error {
-		pdir := filepath.Dir(path)
-		fmt.Println(pdir)
+	nav := giv.NewTreeView(sp, "nav").SetText(sentencecase.Of(strcase.ToCamel(gi.AppName())))
+	grr.Log0(fs.WalkDir(pg.Source, ".", func(path string, d fs.DirEntry, err error) error {
 		// already handled
-		if pdir == "" || pdir == "." {
+		if path == "" || path == "." {
 			return nil
 		}
 
-		par := nav.FindPath(pdir).(*giv.TreeView)
+		pdir := filepath.Dir(path)
 		base := filepath.Base(path)
-		txt := sentencecase.Of(strings.TrimPrefix(base, filepath.Ext(base)))
+
+		// already handled
+		if base == "index.md" {
+			return nil
+		}
+
+		par := nav
+		if pdir != "" && pdir != "." {
+			par = nav.FindPath(pdir).(*giv.TreeView)
+		}
+
+		txt := sentencecase.Of(strings.TrimSuffix(base, filepath.Ext(base)))
 		giv.NewTreeView(par, base).SetText(txt)
 		return nil
 	}))
