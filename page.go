@@ -10,6 +10,7 @@ import (
 	"io/fs"
 	"net/url"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"goki.dev/gi/v2/gi"
@@ -17,6 +18,7 @@ import (
 	"goki.dev/girl/styles"
 	"goki.dev/glide/gidom"
 	"goki.dev/glop/dirs"
+	"goki.dev/glop/sentencecase"
 	"goki.dev/goosi"
 	"goki.dev/goosi/events"
 	"goki.dev/grr"
@@ -115,8 +117,21 @@ func (pg *Page) ConfigWidget() {
 	updt := pg.UpdateStart()
 	sp := gi.NewSplits(pg, "splits")
 
-	nav := giv.NewTreeView(sp, "nav")
-	nav.SetText("Nav")
+	nav := giv.NewTreeView(sp, "nav").SetText(sentencecase.Of(gi.AppName()))
+	grr.Log0(fs.WalkDir(pg.Source, "", func(path string, d fs.DirEntry, err error) error {
+		pdir := filepath.Dir(path)
+		fmt.Println(pdir)
+		// already handled
+		if pdir == "" || pdir == "." {
+			return nil
+		}
+
+		par := nav.FindPath(pdir).(*giv.TreeView)
+		base := filepath.Base(path)
+		txt := sentencecase.Of(strings.TrimPrefix(base, filepath.Ext(base)))
+		giv.NewTreeView(par, base).SetText(txt)
+		return nil
+	}))
 
 	gi.NewFrame(sp, "body").Style(func(s *styles.Style) {
 		s.Direction = styles.Column
