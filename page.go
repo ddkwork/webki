@@ -139,7 +139,11 @@ func (pg *Page) ConfigWidget() {
 		}
 
 		txt := sentencecase.Of(strcase.ToCamel(strings.TrimSuffix(base, filepath.Ext(base))))
-		giv.NewTreeView(par, base).SetText(txt)
+		giv.NewTreeView(par, base).SetText(txt).OnClick(func(e events.Event) {
+			// we need a slash so that it doesn't think it's a relative URL
+			grr.Log0(pg.OpenURL("/"+strings.TrimSuffix(fpath, filepath.Ext(fpath)), true))
+		})
+
 		return nil
 	}))
 
@@ -164,7 +168,7 @@ func (pg *Page) TopAppBar(tb *gi.TopAppBar) {
 			// we reverse the order
 			// ch.SelectItem(len(pg.History) - pg.HistoryIndex - 1)
 			// we need a slash so that it doesn't think it's a relative URL
-			pg.OpenURL("/"+pg.History[pg.HistoryIndex], false)
+			grr.Log0(pg.OpenURL("/"+pg.History[pg.HistoryIndex], false))
 		}
 	})
 
