@@ -119,14 +119,14 @@ func (pg *Page) ConfigWidget() {
 	sp := gi.NewSplits(pg, "splits")
 
 	nav := giv.NewTreeView(sp, "nav").SetText(sentencecase.Of(strcase.ToCamel(gi.AppName())))
-	grr.Log0(fs.WalkDir(pg.Source, ".", func(path string, d fs.DirEntry, err error) error {
+	grr.Log0(fs.WalkDir(pg.Source, ".", func(fpath string, d fs.DirEntry, err error) error {
 		// already handled
-		if path == "" || path == "." {
+		if fpath == "" || fpath == "." {
 			return nil
 		}
 
-		pdir := filepath.Dir(path)
-		base := filepath.Base(path)
+		pdir := path.Dir(fpath)
+		base := path.Base(fpath)
 
 		// already handled
 		if base == "index.md" {
@@ -138,7 +138,7 @@ func (pg *Page) ConfigWidget() {
 			par = nav.FindPath(pdir).(*giv.TreeView)
 		}
 
-		txt := sentencecase.Of(strings.TrimSuffix(base, filepath.Ext(base)))
+		txt := sentencecase.Of(strcase.ToCamel(strings.TrimSuffix(base, filepath.Ext(base))))
 		giv.NewTreeView(par, base).SetText(txt)
 		return nil
 	}))
