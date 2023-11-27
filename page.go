@@ -10,7 +10,6 @@ import (
 	"io/fs"
 	"net/url"
 	"path"
-	"path/filepath"
 	"strings"
 
 	"github.com/iancoleman/strcase"
@@ -119,6 +118,18 @@ func (pg *Page) ConfigWidget() {
 	sp := gi.NewSplits(pg, "splits")
 
 	nav := giv.NewTreeView(sp, "nav").SetText(sentencecase.Of(strcase.ToCamel(gi.AppName())))
+	nav.OnSelect(func(e events.Event) {
+		if len(nav.SelectedNodes) == 0 {
+			return
+		}
+		sn := nav.SelectedNodes[0]
+		url := "/"
+		if sn != nav {
+			// we need a slash so that it doesn't think it's a relative URL
+			url = "/" + sn.PathFrom(nav)
+		}
+		grr.Log0(pg.OpenURL(url, true))
+	})
 	grr.Log0(fs.WalkDir(pg.Source, ".", func(fpath string, d fs.DirEntry, err error) error {
 		// already handled
 		if fpath == "" || fpath == "." {
@@ -133,17 +144,19 @@ func (pg *Page) ConfigWidget() {
 			return nil
 		}
 
+		ext := path.Ext(base)
+		if ext != "" && ext != ".md" {
+			return nil
+		}
+
 		par := nav
 		if pdir != "" && pdir != "." {
 			par = nav.FindPath(pdir).(*giv.TreeView)
 		}
 
-		txt := sentencecase.Of(strcase.ToCamel(strings.TrimSuffix(base, filepath.Ext(base))))
-		giv.NewTreeView(par, base).SetText(txt).OnClick(func(e events.Event) {
-			// we need a slash so that it doesn't think it's a relative URL
-			grr.Log0(pg.OpenURL("/"+strings.TrimSuffix(fpath, filepath.Ext(fpath)), true))
-		})
-
+		nm := strings.TrimSuffix(base, ext)
+		txt := sentencecase.Of(strcase.ToCamel(nm))
+		giv.NewTreeView(par, nm).SetText(txt)
 		return nil
 	}))
 
