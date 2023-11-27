@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"goki.dev/gi/v2/gi"
+	"goki.dev/gi/v2/giv"
 	"goki.dev/girl/styles"
 	"goki.dev/glide/gidom"
 	"goki.dev/glop/dirs"
@@ -43,13 +44,6 @@ type Page struct {
 }
 
 var _ ki.Ki = (*Page)(nil)
-
-func (pg *Page) OnInit() {
-	pg.Frame.OnInit()
-	pg.Style(func(s *styles.Style) {
-		s.Direction = styles.Column
-	})
-}
 
 // OpenURL sets the content of the page from the given url. If the given URL
 // has no scheme (eg: "/about"), then it sets the content of the page to the
@@ -101,15 +95,35 @@ func (pg *Page) OpenURL(rawURL string, addToHistory bool) error {
 		return err
 	}
 
-	updt := pg.UpdateStart()
-	pg.DeleteChildren(true)
-	err = gidom.ReadMD(pg.Context(), pg, b)
+	fr := pg.FindPath("splits/body").(*gi.Frame)
+	updt := fr.UpdateStart()
+	fr.DeleteChildren(true)
+	err = gidom.ReadMD(pg.Context(), fr, b)
 	if err != nil {
 		return err
 	}
-	pg.Update()
-	pg.UpdateEndLayout(updt)
+	fr.Update()
+	fr.UpdateEndLayout(updt)
 	return nil
+}
+
+func (pg *Page) ConfigWidget() {
+	if pg.HasChildren() {
+		return
+	}
+
+	updt := pg.UpdateStart()
+	sp := gi.NewSplits(pg, "splits")
+
+	nav := giv.NewTreeView(sp, "nav")
+	nav.SetText("Nav")
+
+	gi.NewFrame(sp, "body").Style(func(s *styles.Style) {
+		s.Direction = styles.Column
+	})
+
+	sp.SetSplits(0.2, 0.8)
+	pg.UpdateEnd(updt)
 }
 
 // TopAppBar is the default [gi.TopAppBar] for a [Page]
