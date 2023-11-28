@@ -6,8 +6,10 @@
 package webki
 
 import (
+	"bytes"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"net/url"
 	"path"
 	"strings"
@@ -95,6 +97,19 @@ func (pg *Page) OpenURL(rawURL string, addToHistory bool) error {
 	b, err := fs.ReadFile(pg.Source, fsPath)
 	if err != nil {
 		return err
+	}
+
+	btp := []byte("+++")
+	if bytes.HasPrefix(b, btp) {
+		b = bytes.TrimPrefix(b, btp)
+		fm, content, ok := bytes.Cut(b, btp)
+		if !ok {
+			slog.Error("got unclosed front matter")
+			content = fm
+			fm = nil
+		}
+		b = content
+		fmt.Println("front matter", fm)
 	}
 
 	fr := pg.FindPath("splits/body").(*gi.Frame)
