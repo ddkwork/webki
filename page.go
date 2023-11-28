@@ -23,6 +23,7 @@ import (
 	"goki.dev/glop/sentencecase"
 	"goki.dev/goosi"
 	"goki.dev/goosi/events"
+	"goki.dev/grows/tomls"
 	"goki.dev/grr"
 	"goki.dev/ki/v2"
 )
@@ -102,15 +103,19 @@ func (pg *Page) OpenURL(rawURL string, addToHistory bool) error {
 	btp := []byte("+++")
 	if bytes.HasPrefix(b, btp) {
 		b = bytes.TrimPrefix(b, btp)
-		fm, content, ok := bytes.Cut(b, btp)
+		fmb, content, ok := bytes.Cut(b, btp)
 		if !ok {
 			slog.Error("got unclosed front matter")
-			b = fm
-			fm = nil
+			b = fmb
+			fmb = nil
 		} else {
 			b = content
 		}
-		fmt.Println("front matter", string(fm))
+		if len(fmb) > 0 {
+			var fm map[string]string
+			grr.Log(tomls.ReadBytes(&fm, fmb))
+			fmt.Println("front matter", fm)
+		}
 	}
 
 	fr := pg.FindPath("splits/body").(*gi.Frame)
