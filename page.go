@@ -105,11 +105,12 @@ func (pg *Page) OpenURL(rawURL string, addToHistory bool) error {
 		fm, content, ok := bytes.Cut(b, btp)
 		if !ok {
 			slog.Error("got unclosed front matter")
-			content = fm
+			b = fm
 			fm = nil
+		} else {
+			b = content
 		}
-		b = content
-		fmt.Println("front matter", fm)
+		fmt.Println("front matter", string(fm))
 	}
 
 	fr := pg.FindPath("splits/body").(*gi.Frame)
