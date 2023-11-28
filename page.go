@@ -117,7 +117,8 @@ func (pg *Page) ConfigWidget() {
 	updt := pg.UpdateStart()
 	sp := gi.NewSplits(pg, "splits")
 
-	nav := giv.NewTreeView(sp, "nav").SetText(sentencecase.Of(strcase.ToCamel(gi.AppName())))
+	nfr := gi.NewFrame(sp, "nav-frame")
+	nav := giv.NewTreeView(nfr, "nav").SetText(sentencecase.Of(strcase.ToCamel(gi.AppName())))
 	nav.OnSelect(func(e events.Event) {
 		if len(nav.SelectedNodes) == 0 {
 			return
