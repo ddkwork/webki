@@ -20,7 +20,7 @@ import (
 	"goki.dev/girl/styles"
 	"goki.dev/glide/gidom"
 	"goki.dev/glop/dirs"
-	"goki.dev/glop/sentencecase"
+	"goki.dev/glop/sentence"
 	"goki.dev/goosi"
 	"goki.dev/goosi/events"
 	"goki.dev/grows/tomls"
@@ -139,7 +139,7 @@ func (pg *Page) ConfigWidget() {
 	sp := gi.NewSplits(pg, "splits")
 
 	nfr := gi.NewFrame(sp, "nav-frame")
-	nav := giv.NewTreeView(nfr, "nav").SetText(sentencecase.Of(strcase.ToCamel(gi.AppName())))
+	nav := giv.NewTreeView(nfr, "nav").SetText(sentence.Case(strcase.ToCamel(gi.AppName())))
 	nav.OnSelect(func(e events.Event) {
 		if len(nav.SelectedNodes) == 0 {
 			return
@@ -177,7 +177,7 @@ func (pg *Page) ConfigWidget() {
 		}
 
 		nm := strings.TrimSuffix(base, ext)
-		txt := sentencecase.Of(strcase.ToCamel(nm))
+		txt := sentence.Case(strcase.ToCamel(nm))
 		giv.NewTreeView(par, nm).SetText(txt)
 		return nil
 	}))
