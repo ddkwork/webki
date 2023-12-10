@@ -139,7 +139,7 @@ func (pg *Page) ConfigWidget() {
 	sp := gi.NewSplits(pg, "splits")
 
 	nfr := gi.NewFrame(sp, "nav-frame")
-	nav := giv.NewTreeView(nfr, "nav").SetText(sentence.Case(strcase.ToCamel(gi.AppName())))
+	nav := giv.NewTreeView(nfr, "nav").SetText(sentence.Case(strcase.ToCamel(pg.Sc.App.Name)))
 	nav.OnSelect(func(e events.Event) {
 		if len(nav.SelectedNodes) == 0 {
 			return
@@ -190,10 +190,8 @@ func (pg *Page) ConfigWidget() {
 	pg.UpdateEnd(updt)
 }
 
-// TopAppBar is the default [gi.TopAppBar] for a [Page]
-func (pg *Page) TopAppBar(tb *gi.TopAppBar) {
-	gi.DefaultTopAppBarStd(tb)
-
+// AppBar is the default app bar for a [Page]
+func (pg *Page) AppBar(tb *gi.Toolbar) {
 	ch := tb.ChildByName("nav-bar").(*gi.Chooser)
 
 	back := tb.ChildByName("back").(*gi.Button)

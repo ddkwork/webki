@@ -20,10 +20,9 @@ var content embed.FS
 func main() { gimain.Run(app) }
 
 func app() {
-	gi.SetAppName("webki-basic")
-	b := gi.NewBody()
+	b := gi.NewAppBody("webki-basic")
 	pg := webki.NewPage(b).SetSource(grr.Log1(fs.Sub(content, "content")))
-	b.AddTopAppBar(pg.TopAppBar)
+	b.AddAppBar(pg.AppBar)
 	w := b.NewWindow().Run()
 	grr.Log(pg.OpenURL("", true))
 	w.Wait()
