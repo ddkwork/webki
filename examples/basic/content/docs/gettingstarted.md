@@ -10,7 +10,6 @@ import (
 	"io/fs"
 
 	"goki.dev/gi/v2/gi"
-	"goki.dev/gi/v2/gimain"
 	"goki.dev/grr"
 	"goki.dev/webki"
 )
