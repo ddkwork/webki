@@ -9,7 +9,6 @@ import (
 	"io/fs"
 
 	"goki.dev/gi/v2/gi"
-	"goki.dev/gi/v2/gimain"
 	"goki.dev/grr"
 	"goki.dev/webki"
 )
@@ -17,9 +16,7 @@ import (
 //go:embed content
 var content embed.FS
 
-func main() { gimain.Run(app) }
-
-func app() {
+func main() {
 	b := gi.NewAppBody("webki-basic")
 	pg := webki.NewPage(b).SetSource(grr.Log1(fs.Sub(content, "content")))
 	b.AddAppBar(pg.AppBar)

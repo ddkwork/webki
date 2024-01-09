@@ -18,9 +18,7 @@ import (
 //go:embed content/*
 var content embed.FS
 
-func main() { gimain.Run(app) }
-
-func app() {
+func main() {
 	sc := gi.NewScene("webki-basic")
 	grr.Log0(webki.NewPage(sc).SetSource(grr.Log(fs.Sub(content, "content"))).OpenURL(""))
 	gi.NewWindow(sc).Run().Wait()
